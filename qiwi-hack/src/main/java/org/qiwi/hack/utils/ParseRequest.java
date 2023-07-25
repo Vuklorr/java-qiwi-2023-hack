@@ -1,40 +1,23 @@
 package org.qiwi.hack.utils;
 
-import org.qiwi.hack.entity.RequestData;
-
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.Date;
-import java.util.regex.Matcher;
-import java.util.regex.Pattern;
 
 public class ParseRequest {
-    public static RequestData parseRequest(String request) {
-        String code = getCurrencyCode(request);
-        Date date = getDate(request);
-        return new RequestData(code, date);
+    private static final SimpleDateFormat DATE_FORMAT = new SimpleDateFormat("yyyy-MM-dd");
+
+    public static String getCurrencyCode(String input) {
+        String[] parts = input.split("=");
+        return parts.length == 2 && parts[0].equalsIgnoreCase("--code") ? parts[1] : null;
     }
 
-    private static String getCurrencyCode(String input) {
-        Pattern pattern = Pattern.compile("--code=([A-Z]{3})");
-        Matcher matcher = pattern.matcher(input);
-
-        if (matcher.find()) {
-            return matcher.group(1);
-        }
-
-        return null;
-    }
-
-    public static Date getDate(String inputString) {
-        Pattern pattern = Pattern.compile("--date=(\\d{4}-\\d{2}-\\d{2})");
-        Matcher matcher = pattern.matcher(inputString);
-
-        if (matcher.find()) {
-            String dateString = matcher.group(1);
-            SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd");
+    public static Date getDate(String input) {
+        String[] parts = input.split("=");
+        if(parts.length == 2 && parts[0].equalsIgnoreCase("--date")) {
             try {
-                return sdf.parse(dateString);
+                return DATE_FORMAT.parse(parts[1]);
+
             } catch (ParseException e) {
                 e.printStackTrace();
             }
